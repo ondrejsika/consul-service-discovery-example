@@ -1,0 +1,18 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: consul-services
+    consul_sd_configs:
+      - server: consul-server-0:8500
+        tags:
+          - prometheus
+    relabel_configs:
+      - source_labels: [__meta_consul_service]
+        target_label: job
+      - source_labels: [__meta_consul_node]
+        target_label: node
+
+rule_files:
+  - prometheus.rules.yml

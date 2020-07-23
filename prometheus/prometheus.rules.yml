@@ -1,0 +1,32 @@
+groups:
+  - name: metrics
+    rules:
+      - record: requests_root_ps
+        expr: rate(requests_root_total[5m])
+      - record: requests_root_pm
+        expr: rate(requests_root_total[5m]) * 60
+
+      - record: requests_livez_ps
+        expr: rate(requests_livez_total[5m])
+      - record: requests_livez_pm
+        expr: rate(requests_livez_total[5m]) * 60
+
+      - record: requests_refresh_ps
+        expr: rate(requests_refresh_total[5m])
+      - record: requests_refresh_pm
+        expr: rate(requests_refresh_total[5m]) * 60
+
+      - record: refresh_ps
+        expr: rate(refresh_total[5m])
+      - record: refresh_pm
+        expr: rate(refresh_total[5m]) * 60
+
+  - name: alerts
+    rules:
+      - alert: HighRefreshRate
+        expr: refresh_pm > 5
+        for: 1m
+        labels:
+          severity: page
+        annotations:
+          summary: Refres rate is too high, more than 5 refreshes per minute

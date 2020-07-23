@@ -3,17 +3,25 @@
 ## Run Consul Cluster
 
 ```
-docker-compose up -d consul-server-0 consul-server-1 consul-server-2 consul-agent-0 consul-agent-1 consul-agent-2
+./run-consul.sh
 ```
 
 See: <http://127.0.0.1:8500>
+
+## Run Prometheus
+
+```
+./run-prometheus.sh
+```
+
+See: <http://127.0.0.1:9090>
 
 ## Start Services (consul-demo-service)
 
 Source of [ondrejsika/consul-demo-service](https://github.com/ondrejsika/consul-demo-service)
 
 ```
-docker-compose up -d service-0 service-1 service-2 service-3
+./run-services.sh
 ```
 
 See:
@@ -32,22 +40,34 @@ curl http://127.0.0.1:8002
 curl http://127.0.0.1:8003
 ```
 
+## Run Load
+
+```
+./run-load-root.sh
+```
+
 ## See Services
 
 ```
-docker-compose run cmd ./see.sh /
+./run-see.sh /
 ```
 
 ## Refresh Service Config
 
 ```
-docker-compose run cmd ./see.sh /refresh
+./run-see.sh /refresh
 ```
 
 ## Check Health
 
 ```
-docker-compose run cmd ./see.sh /livez
+./run-see.sh /livez
+```
+
+## See Prometheus Metrics
+
+```
+./run-see.sh /metrics
 ```
 
 ## Set Configuration Using Consul KV
@@ -57,13 +77,13 @@ docker-compose run cmd ./see.sh /livez
 Set
 
 ```
-docker-compose run cmd ./set.sh global foo
+./run-set.sh global foo
 ```
 
 Unset
 
 ```
-docker-compose run cmd ./unset.sh global
+./run-unset.sh global
 ```
 
 ### Region Config
@@ -71,13 +91,13 @@ docker-compose run cmd ./unset.sh global
 Set
 
 ```
-docker-compose run cmd ./set.sh region/us-west bar
+./run-set.sh region/us-west bar
 ```
 
 Unset
 
 ```
-docker-compose run cmd ./unset.sh region/us-west
+./run-unset.sh region/us-west
 ```
 
 ### Service Config
@@ -85,17 +105,36 @@ docker-compose run cmd ./unset.sh region/us-west
 Set
 
 ```
-docker-compose run cmd ./set.sh service/us-west-1 baz
+./run-set.sh service/us-west-1 baz
 ```
 
 Unset
 
 ```
-docker-compose run cmd ./unset.sh service/us-west-1
+./run-unset.sh service/us-west-1
 ```
+
+## See Metrics in Prometheus
+
+- Charts: <http://127.0.0.1:9090/new/graph?g0.range_input=5m&g0.expr=requests_root_ps&g0.tab=0&g1.range_input=1h&g1.expr=avg(requests_root_ps)&g1.tab=0&g2.range_input=1h&g2.expr=refresh_pm&g2.tab=0&g3.range_input=1h&g3.expr=avg(refresh_pm)&g3.tab=0>
+- Alerts: <http://127.0.0.1:9090/new/alerts>
+
+## Fire Alert
+
+```
+./run-load-refresh.sh
+```
+
+Wait & check Prometheus
+
+```
+./stop-load-refresh.sh
+```
+
+Wait & check Prometheus, it will be OK again
 
 ## Destroy
 
 ```
-docker-compose down --volumes
+./stop-all.sh
 ```

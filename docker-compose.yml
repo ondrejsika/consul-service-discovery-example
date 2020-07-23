@@ -16,7 +16,7 @@ x-consul-agent: &consul-agent
   command: "agent -retry-join consul-server-0 -client 0.0.0.0"
 
 x-consul-demo-service: &consul-demo-service
-  image: ondrejsika/consul-demo-service:1
+  image: ondrejsika/consul-demo-service:2
 
 services:
   consul-server-0:
@@ -45,6 +45,14 @@ services:
       - "28500:8500"
     volumes:
       - consul-server-2:/consul/data
+
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prometheus:/prometheus
+    ports:
+      - 9090:9090
 
   consul-agent-0:
     <<: *consul-agent
@@ -106,7 +114,26 @@ services:
       - .:/scripts
     working_dir: /scripts
 
+  load:
+    image: nixery.dev/shell/curl/jq/consul
+    environment:
+      CONSUL_HTTP_ADDR: http://consul-agent-0:8500
+    volumes:
+      - .:/scripts
+    working_dir: /scripts
+    command: sh -c 'while true; do ./see.sh /; done'
+
+  load-refresh:
+    image: nixery.dev/shell/curl/jq/consul
+    environment:
+      CONSUL_HTTP_ADDR: http://consul-agent-0:8500
+    volumes:
+      - .:/scripts
+    working_dir: /scripts
+    command: sh -c 'while true; do ./see.sh /refresh; sleep 1; done'
+
 volumes:
   consul-server-0:
   consul-server-1:
   consul-server-2:
+  prometheus:
