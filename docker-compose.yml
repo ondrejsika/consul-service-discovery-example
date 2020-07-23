@@ -1,0 +1,112 @@
+version: "3.8"
+
+x-consul: &consul
+  image: consul:1.8
+
+x-consul-server-bootstrap: &consul-server-bootstrap
+  <<: *consul
+  command: "agent -server -bootstrap-expect 3 -ui -client 0.0.0.0 -data-dir /consul/data"
+
+x-consul-server: &consul-server
+  <<: *consul
+  command: "agent -server -retry-join consul-server-0 -client 0.0.0.0 -data-dir /consul/data"
+
+x-consul-agent: &consul-agent
+  <<: *consul
+  command: "agent -retry-join consul-server-0 -client 0.0.0.0"
+
+x-consul-demo-service: &consul-demo-service
+  image: ondrejsika/consul-demo-service:1
+
+services:
+  consul-server-0:
+    <<: *consul-server-bootstrap
+    hostname: consul-server-0
+    ports:
+      - "8400:8400"
+      - "8500:8500"
+      - "8600:8600"
+      - "8600:8600/udp"
+    volumes:
+      - consul-server-0:/consul/data
+
+  consul-server-1:
+    <<: *consul-server
+    hostname: consul-server-1
+    ports:
+      - "18500:8500"
+    volumes:
+      - consul-server-1:/consul/data
+
+  consul-server-2:
+    <<: *consul-server
+    hostname: consul-server-2
+    ports:
+      - "28500:8500"
+    volumes:
+      - consul-server-2:/consul/data
+
+  consul-agent-0:
+    <<: *consul-agent
+    hostname: consul-agent-0
+
+  consul-agent-1:
+    <<: *consul-agent
+    hostname: consul-agent-1
+
+  consul-agent-2:
+    <<: *consul-agent
+    hostname: consul-agent-2
+
+  service-0:
+    <<: *consul-demo-service
+    environment:
+      CONSUL_HTTP_ADDR: http://consul-agent-0:8500
+      REGION: eu
+      INSTANCE: 0
+      HOST: service-0
+    ports:
+      - 8000:80
+
+  service-1:
+    <<: *consul-demo-service
+    environment:
+      CONSUL_HTTP_ADDR: http://consul-agent-1:8500
+      REGION: eu
+      INSTANCE: 1
+      HOST: service-1
+    ports:
+      - 8001:80
+
+  service-2:
+    <<: *consul-demo-service
+    environment:
+      CONSUL_HTTP_ADDR: http://consul-agent-2:8500
+      REGION: us-west
+      INSTANCE: 0
+      HOST: service-2
+    ports:
+      - 8002:80
+
+  service-3:
+    <<: *consul-demo-service
+    environment:
+      CONSUL_HTTP_ADDR: http://consul-agent-2:8500
+      REGION: us-west
+      INSTANCE: 1
+      HOST: service-3
+    ports:
+      - 8003:80
+
+  cmd:
+    image: nixery.dev/shell/curl/jq/consul
+    environment:
+      CONSUL_HTTP_ADDR: http://consul-agent-0:8500
+    volumes:
+      - .:/scripts
+    working_dir: /scripts
+
+volumes:
+  consul-server-0:
+  consul-server-1:
+  consul-server-2:
