@@ -106,6 +106,16 @@ services:
     ports:
       - 8003:80
 
+  service-static-1:
+    image: ondrejsika/metrics-example
+    ports:
+      - 8101:80
+
+  service-static-2:
+    image: ondrejsika/metrics-example
+    ports:
+      - 8102:80
+
   cmd:
     image: nixery.dev/shell/curl/jq/consul
     environment:
