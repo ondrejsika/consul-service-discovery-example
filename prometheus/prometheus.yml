@@ -8,6 +8,15 @@ scrape_configs:
       - targets:
           - service-static-1:80
           - service-static-2:80
+        labels:
+          zone: eu-central-1
+          foo: bar
+      - targets:
+          - service-static-1:80
+          - service-static-2:80
+        labels:
+          zone: us-east-1
+          foo: baz
   - job_name: consul-services
     consul_sd_configs:
       - server: consul-server-0:8500
